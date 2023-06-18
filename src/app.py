@@ -42,7 +42,7 @@ def get_characters():
     for character in characters:
         results.append(character.serialize())
     response_body = {
-        "msg": " lucía es boba, muy boba, sisi ",
+        "msg": "ok",
         "total_records": len(results),
         "results": results
     }
@@ -121,7 +121,7 @@ def post_user():
     return jsonify(request_body)
 
 
-@app.route('/users/favorites-planets/<int:user_id>', methods=['GET'])
+@app.route('/user/favorites-planets/<int:user_id>', methods=['GET'])
 def get_favorite_planet(user_id):
     favs = UserFavoritePlanets.query.filter(UserFavoritePlanets.user_id == user_id).all()
     results = [fav.serialize() for fav in favs]
@@ -161,6 +161,50 @@ def put_fav_planet(planet_id):
     fav = Planet.query.get(planet_id)
     if fav is None:
         raise APIException('Planet not found', status_code=404)
+    if "name" in request_body:
+        fav.name == request_body["name"]
+    db.session.commit()
+    return jsonify(request_body), 200
+
+
+@app.route('/user/favorites-characters/<int:user_id>', methods=['GET'])
+def get_favorite_character(user_id):
+    favs = UserFavoriteCharacters.query.filter(UserFavoriteCharacters.user_id == user_id).all()
+    results = [fav.serialize() for fav in favs]
+    response_body = {
+        "msg": "coolio",
+        "total records": len(results),
+        "results": results
+    }
+
+    return jsonify(response_body), 200
+
+
+@app.route('/favorite/characters', methods=['POST'])
+def post_favorite_character():
+    request_body = request.get_json()
+    favorite = UserFavoriteCharacters(user_id = request_body['user_id'], fav_character_id = request_body['fav_character_id'])
+    db.session.add(favorite)
+    db.session.commit()
+    return jsonify(request_body), 200
+
+
+@app.route('/user/favorites-characters/<int:favorite_id>', methods=['DELETE'])
+def delete_favorite_character(favorite_id):
+    fav = UserFavoriteCharacters.query.get(favorite_id)
+    if fav is None:
+        raise APIException('Fav was not found', status_code=404)
+    db.session.delete(fav)
+    db.session.commit()
+    return jsonify("Todo crema"), 200
+
+
+@app.route('/characters/<int:character_id>', methods=['PUT'])
+def put_fav_character(character_id):
+    request_body = request.get_json()
+    fav = Character.query.get(character_id)
+    if fav is None:
+        raise APIException('Character not found', status_code=404)
     if "name" in request_body:
         fav.name == request_body["name"]
     db.session.commit()
