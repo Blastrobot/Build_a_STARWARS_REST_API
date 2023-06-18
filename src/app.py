@@ -193,7 +193,7 @@ def post_favorite_character():
 def delete_favorite_character(favorite_id):
     fav = UserFavoriteCharacters.query.get(favorite_id)
     if fav is None:
-        raise APIException('Fav was not found', status_code=404)
+        raise APIException('Favorite was not found', status_code=404)
     db.session.delete(fav)
     db.session.commit()
     return jsonify("Todo crema"), 200
